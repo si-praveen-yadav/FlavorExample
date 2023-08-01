@@ -1,0 +1,98 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.example.flavorexample'
+    compileSdk 33
+
+    flavorDimensions 'app', 'environment'
+
+    productFlavors {
+        kkr {
+            dimension 'app'
+            applicationId 'com.si.kkr'
+            versionCode 5
+            versionName '1.4.1'
+            ext {
+                appName = "Knight Club"
+            }
+        }
+        rr {
+            dimension 'app'
+            applicationId 'com.si.rr'
+            versionCode 1
+            versionName '1.0.0'
+            ext {
+                appName = "Rajsthan Royals"
+            }
+
+        }
+        staging {
+            dimension 'environment'
+            ext {
+                baseUrl = [kkr: "https://kkrstagingurl.com/api/",
+                           rr : "https://rrstagingurl.com/api/"]
+            }
+        }
+
+        prod {
+            dimension 'environment'
+            ext {
+                baseUrl = [kkr: "https://kkrprodurl.com/api/",
+                           rr : "https://rrprodurl.com/api/"]
+            }
+        }
+
+        applicationVariants.all { variant ->
+            def mergedFlavor = variant.getMergedFlavor()
+            def flavors = variant.productFlavors
+
+            // flavorDimensions "app" -> 0, "environment" -> 1
+            def app = flavors[0]
+            def environment = flavors[1]
+
+            // Set correct build configuration fields depending on flavors
+            variant.buildConfigField "String", "BASE_URL", "\"${environment.baseUrl[app.name]}\""
+
+            mergedFlavor.manifestPlaceholders = [appLabel: "${app.appName}-${environment.name}"]
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.example.flavorexample"
+        minSdk 24
+        targetSdk 33
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
